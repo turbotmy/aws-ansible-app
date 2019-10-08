@@ -1,0 +1,67 @@
+- elb_target_group:
+    name: "{{ target_group_name }}"
+    protocol: http
+    port: 80
+    vpc_id: "{{ my_first_vpc.vpc.id }}"
+    region: "{{ aws_region }}"
+    health_check_path: /
+    successful_response_codes: "200"
+    aws_access_key: "{{ access_key }}"
+    aws_secret_key: "{{ secret_key }}"
+    targets:
+      - Id: "{{ item.id }}"
+        Port: 80
+    state: present
+    wait: false
+  with_items: "{{ ec2_instance.tagged_instances }}"
+  register: target_demo
+  when: stat_result.stat.exists == False
+
+- elb_target_group:
+    name: "{{ target_group_monitor_name }}"
+    protocol: http
+    port: 3000
+    vpc_id: "{{ my_first_vpc.vpc.id }}"
+    region: "{{ aws_region }}"
+    health_check_path: /
+    successful_response_codes: "200"
+    aws_access_key: "{{ access_key }}"
+    aws_secret_key: "{{ secret_key }}"
+    targets:
+      - Id: "{{ item.id }}"
+        Port: 3000
+    state: present
+    wait: false
+  with_items: "{{ ec2_instance.tagged_instances }}"
+  register: target_demo
+  when: stat_result.stat.exists == False
+
+- elb_application_lb:
+    name: myalb
+    security_groups:
+      - "{{ lb_sg.group_id }}"
+    state: present
+    region: "{{ aws_region }}"
+    aws_access_key: "{{ access_key }}"
+    aws_secret_key: "{{ secret_key }}"
+    subnets:
+      - "{{ my_public_subnet_1.subnet.id }}"
+      - "{{ my_public_subnet_2.subnet.id }}"
+    listeners:
+      - Protocol: HTTP
+        Port: 80
+        DefaultActions:
+            - Type: forward # Required. Only 'forward' is accepted at this time
+              TargetGroupName: "{{ target_group_name }}"
+      - Protocol: HTTP
+        Port: 3000
+        DefaultActions:
+            - Type: forward # Required. Only 'forward' is accepted at this time
+              TargetGroupName: "{{ target_group_monitor_name }}"
+  register: myalb_facts
+
+- name: Create file with dns-name
+  copy:
+    dest: "dns.txt"
+    content: |
+      ALB DNS: {{ myalb_facts.dns_name }}

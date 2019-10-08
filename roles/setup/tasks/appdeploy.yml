@@ -1,0 +1,26 @@
+---
+# This playbook contains docker actions that will be run on "remote" host.
+- name: Copying docker-compose file
+  copy: src=../files/docker-compose.yml dest=~/home/ubuntu/setup/
+
+- name: Tear Down existing services
+  become: yes
+  docker_compose: 
+    project_src: ~/home/ubuntu/setup/
+    state: absent
+
+- name: Run `docker-compose up` again
+  become: yes
+  docker_compose:
+    project_src: ~/home/ubuntu/setup/
+    build: no
+    state: present
+    
+- name: Removing docker compose file
+  become: yes
+  command: sudo rm -f ~/home/setup/docker-compose.yml
+
+- name: Deleteion of directory on remote server
+  file:
+    path: ~/home/ubuntu/setup/
+    state: absent

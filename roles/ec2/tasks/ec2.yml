@@ -1,0 +1,76 @@
+
+- name: Check that the hosts.yml exists
+  stat:
+    path: hosts.yml
+  register: stat_result
+
+- name: Create EC2 Key Pair
+  ec2_key:
+    name: demo-key
+    aws_access_key: "{{ access_key }}"
+    aws_secret_key: "{{ secret_key }}"
+    region: "{{ aws_region }}"
+  register: ec2_key_result
+  tags:
+    - ec2
+
+- name: Save private key
+  copy: content="{{ ec2_key_result.key.private_key }}" dest="~/.pems/demo-key.pem" remote_src=yes force=no
+  when: ec2_key_result.changed
+  tags:
+    - ec2
+
+- name: Create An EC2 Instance
+  ec2:
+    key_name: demo-key
+    instance_type: "{{ instance_type }}"
+    image: "{{ ami_id }}"
+    wait: yes
+    group: web-sg
+    vpc_subnet_id: "{{ my_public_subnet_1.subnet.id }}"
+    assign_public_ip: yes
+    aws_access_key: "{{ access_key }}"
+    aws_secret_key: "{{ secret_key }}"
+    region: "{{ aws_region }}"
+    count_tag:
+      Name: Instance
+    exact_count: "{{ instance_count }}"
+    instance_tags:
+      Name: Web EC2 Instance
+  register: ec2_instance
+  when: stat_result.stat.exists == False
+  tags:
+    - ec2
+
+- name: Store EC2 instance IPs to provision against
+  add_host:
+    hostname: "{{ item.public_ip }}"
+    groupname: ec2_instance_ips
+  with_items: "{{ ec2_instance.tagged_instances }}"
+  when: stat_result.stat.exists == False
+
+- name: Wait for servers to come online
+  wait_for:
+    host: "{{ item.public_ip }}"
+    port: 22
+    timeout: 500
+  with_items: "{{ ec2_instance.tagged_instances }}"
+  when: stat_result.stat.exists == False
+
+- name: Add EC2 instances as known hosts
+  known_hosts:
+    name: "{{ item.public_ip }}"
+    key: "{{ lookup('pipe', 'ssh-keyscan -t rsa ' + item.public_ip) }}"
+  with_items: "{{ ec2_instance.tagged_instances }}"
+  when: stat_result.stat.exists == False
+
+- name: Create hosts.yml file
+  with_items: "{{ ec2_instance.tagged_instances }}"
+  when: stat_result.stat.exists == False
+  copy:
+    dest: "hosts.yml"
+    content: |
+      all:
+        hosts:
+          ec2:
+            ansible_host: {{ item.public_ip }} # Put Public IP here

@@ -1,0 +1,4 @@
+- include: vpc.yml
+- include: sg.yml
+- include: ec2.yml
+- include: alb.yml

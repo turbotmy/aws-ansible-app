@@ -1,0 +1,7 @@
+
+# This playbook contains all actions that will be run on "local" host.
+
+# Install docker prometheus and others..
+- name: Import prometheus taks
+  include_tasks: prometheus.yml
+

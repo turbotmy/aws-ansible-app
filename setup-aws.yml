@@ -1,0 +1,7 @@
+---
+- hosts: localhost
+  vars:
+     access_key: <Put your access_key>
+     secret_key: <Put your secret_key>
+  roles:
+    - ec2

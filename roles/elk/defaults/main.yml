@@ -1,0 +1,8 @@
+---
+
+packages:
+  - filebeat
+
+filebeat_home: "/etc/filebeat"
+
+logstash_url: "{{ ansible_default_ipv4.address }}:5044"

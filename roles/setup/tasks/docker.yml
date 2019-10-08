@@ -1,0 +1,115 @@
+---
+# This playbook contains docker actions that will be run on "remote" host.
+
+# sudo apt-get install *
+- name: Install docker packages
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  loop: ['apt-transport-https','ca-certificates','curl','software-properties-common','python3-pip','python-pip','virtualenv','python3-setuptools']
+  tags:
+    - docker
+
+
+
+# curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+- name: Add Docker s official GPG key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+  tags:
+    - docker
+
+# sudo apt-key fingerprint 0EBFCD88
+- name: Verify that we have the key with the fingerprint
+  apt_key:
+    id: 0EBFCD88
+    state: present
+  tags:
+    - docker
+
+# sudo add-apt-repository ubuntu bionic stable
+- name: Setup Stable docker repository
+  apt_repository:
+    repo: deb https://download.docker.com/linux/ubuntu bionic stable
+    state: present
+    update_cache: yes
+  tags:
+    - docker
+
+# sudo apt-get update
+- name: Update apt packages
+  apt:
+    update_cache: yes
+  tags:
+    - docker
+
+# sudo apt-get install docker-ce=18.03.*
+- name: Install docker
+  apt:
+    name: docker-ce=18.03.*
+    state: present
+    update_cache: yes
+  notify: Start docker on boot
+  tags:
+    - docker
+
+# sudo groupadd docker
+- name: Create "ubuntu" group
+  group:
+    name: "{{ docker_group }}"
+    state: present
+  tags:
+    - docker
+
+# sudo usermod -aG docker ubuntu
+- name: Add remote "ubuntu" user to "ubuntu" group
+  user:
+    name: "{{ remote_user }}"
+    group: "{{ docker_group }}"
+    append: yes
+  tags:
+    - docker
+
+- name: Install Python3 Distutils
+  apt:
+    name: python3-distutils
+
+- name: check to see if pip is already installed
+  command: "pip --version"
+  ignore_errors: true
+  register: pip_is_installed
+  changed_when: false
+
+- block:
+
+    - name: download get-pip.py
+      get_url: url=https://bootstrap.pypa.io/get-pip.py  dest=/tmp
+
+    - name: install pip
+      become: yes
+      command: "python3 /tmp/get-pip.py"
+
+    - name: delete get-pip.py
+      file: state=absent path=/tmp/get-pip.py
+
+  when: pip_is_installed.rc != 0
+
+# - name: Install Docker py
+#   pip:
+#     name: docker
+
+- name: Install Docker compose
+  pip:
+    name: docker-compose
+    state: present
+
+# #sudo apt-get install docker-compose=1.8.*
+# - name: Install docker-compose
+#   apt:
+#     name: docker-compose=1.23.0
+#     state: present
+#     update_cache: yes
+#   tags:
+#     - docker

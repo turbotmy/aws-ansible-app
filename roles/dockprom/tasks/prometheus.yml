@@ -1,0 +1,45 @@
+---
+
+# This playbook contains docker actions that will be run on "remote" host.
+- name: Creation of directory on remote server
+  file:
+    path: ~/home/ubuntu/dprom
+    state: directory
+    mode: 0755
+
+- name: Copying docker-compose file
+  copy: src=../files/docker-compose.yml dest=~/home/ubuntu/dprom/
+
+- name: Copy related support/configuration files.
+  copy:
+   src: "../files/"
+   dest: ~/home/ubuntu/dprom
+   mode: 0755
+
+- name: List down all the files that copies 
+  shell: find ~/home/ubuntu/dprom/ -printf '%y %p\n'
+  register: dir_out
+- debug: var=dir_out.stdout_lines
+    
+   
+- name: Tear Down existing services
+  become: yes
+  docker_compose: 
+    project_src: ~/home/ubuntu/dprom/
+    state: absent
+
+- name: Run `docker-compose up` again
+  become: yes
+  docker_compose:
+    project_src: ~/home/ubuntu/dprom/
+    build: no
+    state: present
+    
+- name: Removing docker compose file and related support/configuration files.
+  become: yes
+  command: sudo rm -rf ~/home/ubuntu/dprom
+
+- name: Deletion of directory on remote server
+  file:
+    path: ~/home/ubuntu/dprom
+    state: absent

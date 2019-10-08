@@ -1,0 +1,50 @@
+---
+- name: Create EC2 Security Group For LB
+  ec2_group:
+    name: lb-sg
+    description: A sample security group for load balancer
+    vpc_id: "{{ my_first_vpc.vpc.id }}"
+    region: "{{ aws_region }}"
+    aws_secret_key: "{{ secret_key }}"
+    aws_access_key: "{{ access_key }}"
+    rules:
+      - proto: tcp
+        from_port: 80
+        to_port: 80
+        cidr_ip: 0.0.0.0/0
+      - proto: tcp
+        from_port: 3000
+        to_port: 3000
+        cidr_ip: 0.0.0.0/0
+    rules_egress:
+      - proto: all
+        cidr_ip: 0.0.0.0/0
+    tags:
+      Name: lb-sg
+  register: lb_sg
+  tags:
+    - sg
+
+- name: Create EC2 Security Group For Web
+  ec2_group:
+    name: web-sg
+    description: A sample security group for web
+    vpc_id: "{{ my_first_vpc.vpc.id }}"
+    region: "{{ aws_region }}"
+    aws_secret_key: "{{ secret_key }}"
+    aws_access_key: "{{ access_key }}"
+    rules:
+      - proto: tcp
+        from_port: 22
+        to_port: 22
+        cidr_ip:  0.0.0.0/0
+      - proto: all
+        group_id: "{{ lb_sg.group_id }}"
+    rules_egress:
+      - proto: all
+        cidr_ip: 0.0.0.0/0
+    tags:
+      Name: web-sg
+  register: web_sg
+  tags:
+    - sg

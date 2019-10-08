@@ -1,0 +1,6 @@
+- name: Configurations to "remote" host
+  hosts: ec2
+  remote_user: ubuntu # Remote user
+  become: yes
+  roles:
+    - dockprom

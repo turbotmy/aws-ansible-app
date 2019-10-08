@@ -1,0 +1,19 @@
+
+# This playbook contains all actions that will be run on "local" host.
+
+# Install docker logstash-docker-config
+- name: Import logstash-docker-config tasks
+  include_tasks: logstash-docker-config.yml
+
+# Install docker elk 
+- name: Import elk tasks
+  include_tasks: elk.yml
+
+# Install filebeat-config
+- name: Import filebeat-config tasks
+  include_tasks: filebeat-config.yml
+
+# Install filebeat
+- name: Import filebeat tasks
+  include_tasks: filebeat.yml
+
