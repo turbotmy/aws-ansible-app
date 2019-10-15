@@ -14,13 +14,7 @@ services:
        WORDPRESS_DB_HOST: db:3306
        WORDPRESS_DB_USER: wordpress
        WORDPRESS_DB_PASSWORD: Calendar2020
-       WORDPRESS_CONFIG_EXTRA:
-          define('WP_DEBUG', true);
-       NEXT_VAR: false
-       WORDPRESS_CONFIG_EXTRA:
-          define('WP_DEBUG_LOG', true);
-       NEXT_VAR: false
-
+       WORDPRESS_DEBUG: 1
    db:
      image: mysql:5.7.27
      volumes:
