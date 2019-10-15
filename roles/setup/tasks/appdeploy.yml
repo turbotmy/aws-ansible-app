@@ -20,7 +20,7 @@
   become: yes
   command: sudo rm -f ~/home/setup/docker-compose.yml
 
-- name: Deleteion of directory on remote server
+- name: Deletion of directory on remote server
   file:
     path: ~/home/ubuntu/setup/
     state: absent

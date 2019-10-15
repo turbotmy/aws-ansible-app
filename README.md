@@ -85,7 +85,7 @@ ssh -i "demo-key.pem" ubuntu@ec2-54-255-221-74.ap-southeast-1.compute.amazonaws.
 
 ```
 
-## Default Variables
+## Default Variables - Setup AWS
 You can overwrite these default variable by defining in `setup-aws.yml`
 ```
 aws_region: ap-southeast-1

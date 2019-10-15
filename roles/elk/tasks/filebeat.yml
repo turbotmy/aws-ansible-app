@@ -1,8 +1,32 @@
----
+# ---
 
-- name: Install filebeat packages
-  yum:
-    name: "{{ item  }}"
+# # - name: Install filebeat packages
+# #   yum:
+# #     name: "{{ item  }}"
+# #     state: present
+# #   with_items: "{{ packages }}"
+
+# sudo apt-get update
+- name: Update filebeat apt packages
+  become: yes
+  apt:
+    update_cache: yes
+
+
+# sudo apt-get install *
+- name: Install filebeat dependencies and packages
+  become: yes
+  apt:
+    name: "{{ item }}"
     state: present
-  with_items: "{{ packages }}"
+    update_cache: yes
+  loop: ['apt-transport-https']
 
+
+- name: Install filebeat from APT repository
+  become: yes
+  apt:
+    name: filebeat 
+    state: present
+    force: true
+    update_cache: yes

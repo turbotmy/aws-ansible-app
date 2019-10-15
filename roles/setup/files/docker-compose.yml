@@ -9,17 +9,23 @@ services:
        - wordpress_files:/var/www/html
      ports:
        - "80:80"
-     restart: always
+     restart: unless-stopped
      environment:
        WORDPRESS_DB_HOST: db:3306
        WORDPRESS_DB_USER: wordpress
        WORDPRESS_DB_PASSWORD: Calendar2020
+       WORDPRESS_CONFIG_EXTRA:
+          define('WP_DEBUG', true);
+       NEXT_VAR: false
+       WORDPRESS_CONFIG_EXTRA:
+          define('WP_DEBUG_LOG', true);
+       NEXT_VAR: false
 
    db:
-     image: mysql:5.7
+     image: mysql:5.7.27
      volumes:
-       - db_data:/var/lib/mysql
-     restart: always
+       - db_data:/var/data/mysql
+     restart: unless-stopped
      environment:
        MYSQL_ROOT_PASSWORD: dbroot123
        MYSQL_DATABASE: wordpress

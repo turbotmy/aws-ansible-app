@@ -14,7 +14,7 @@
     name: "{{ item }}"
     groups: filebeat
     append: true
-  with_items: "{{ users }}"
+  with_items: "{{ users | default('default_users') }}"
 
 - name: Create Filebeat system user
   user:
@@ -23,13 +23,24 @@
     createhome: no
     groups: filebeat
 
+- name: Create filebeat repository folder
+  become: yes
+  file:
+    path: "/etc/yum.repos.d/"
+    mode: 0777
+    owner: "filebeat"
+    group: "filebeat"
+    state: directory
+
 - name: Copy filebeat reporsitory file
+  become: yes
   copy:
     src: "filebeat.repo"
     dest: "/etc/yum.repos.d/filebeat.repo"
     mode: 0755
 
 - name: Create filebeat home directory
+  become: yes
   file:
     path: "{{ filebeat_home }}"
     mode: 0777
@@ -38,6 +49,7 @@
     state: directory
 
 - name: Copy filebeat configuration file
+  become: yes
   template:
     src: "filebeat.yml.j2"
     dest: "{{ filebeat_home }}/filebeat.yml"

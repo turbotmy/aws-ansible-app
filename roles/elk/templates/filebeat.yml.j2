@@ -12,11 +12,16 @@
 
 #=========================== Filebeat prospectors =============================
 
-filebeat.prospectors:
+#filebeat.prospectors:
+filebeat.inputs:
 
 # Each - is a prospector. Most options can be set at the prospector level, so
 # you can use different prospectors for various configurations.
 # Below are the prospector specific configurations.
+
+- type: container
+  paths: 
+    - /var/lib/docker/containers/*/*.log
 
 - type: log
 
@@ -169,7 +174,7 @@ output.logstash:
 
 # Sets log level. The default log level is info.
 # Available log levels are: error, warning, info, debug
-#logging.level: debug
+logging.level: debug
 
 # At debug level, you can selectively enable logging only for some components.
 # To enable all selectors use ["*"]. Examples of other selectors are "beat",
@@ -182,7 +187,7 @@ output.logstash:
 # reporting is disabled by default.
 
 # Set to true to enable the monitoring reporter.
-#xpack.monitoring.enabled: false
+#xpack.monitoring.enabled: true
 
 # Uncomment to send the metrics to Elasticsearch. Most settings from the
 # Elasticsearch output are accepted here as well. Any setting that is not set is

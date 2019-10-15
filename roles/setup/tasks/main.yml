@@ -6,7 +6,7 @@
   apt:
     update_cache: yes
   tags:
-    - system
+    - setup
     
 # Import docker tasks
 - name: Import docker tasks
@@ -21,11 +21,13 @@
   apt:
     autoclean: yes
   tags:
-    - system
+    - setup
 
 # sudo apt-get autoremove
 - name: Remove dependencies that are no longer required
+  become: yes
   apt:
     autoremove: yes
+    purge: yes
   tags:
-    - system
+    - setup

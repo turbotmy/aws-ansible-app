@@ -6,3 +6,5 @@ packages:
 filebeat_home: "/etc/filebeat"
 
 logstash_url: "{{ ansible_default_ipv4.address }}:5044"
+
+default_users: ['ubuntu','ansible']

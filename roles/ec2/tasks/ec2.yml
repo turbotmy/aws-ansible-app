@@ -36,7 +36,7 @@
       Name: Instance
     exact_count: "{{ instance_count }}"
     instance_tags:
-      Name: Web EC2 Instance
+      Name: Web Instance
   register: ec2_instance
   when: stat_result.stat.exists == False
   tags:
