@@ -10,7 +10,7 @@
 - name: Update filebeat apt packages
   become: yes
   apt:
-    update_cache: yes
+    update_cache: no
 
 
 # sudo apt-get install *

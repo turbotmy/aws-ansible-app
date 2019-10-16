@@ -33,6 +33,7 @@
   docker_compose:
     project_src: ~/home/ubuntu/dprom/
     build: no
+    nocache: yes
     state: present
     
 - name: Removing docker compose file and related support/configuration files.
