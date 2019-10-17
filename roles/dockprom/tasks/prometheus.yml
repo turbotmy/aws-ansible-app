@@ -8,20 +8,68 @@
     mode: 0755
 
 - name: Copying docker-compose file
-  copy: src=../files/docker-compose.yml dest=~/home/ubuntu/dprom/
-
-- name: Copy related support/configuration files.
-  copy:
-   src: "../files/"
-   dest: ~/home/ubuntu/dprom
+  copy: 
+   src: ../files/docker-compose.yml 
+   dest: ~/home/ubuntu/dprom/
    mode: 0755
 
 - name: List down all the files that copies 
   shell: find ~/home/ubuntu/dprom/ -printf '%y %p\n'
   register: dir_out
 - debug: var=dir_out.stdout_lines
-    
-   
+
+- name: Copy related support/configuration files - alertmanager
+  copy:
+   src: "../files/alertmanager/{{ item }}"
+   dest: ~/home/ubuntu/dprom/alertmanager/
+   mode: 0755
+  with_items:
+   - config.yml
+
+- name: Copy related support/configuration files - caddy
+  copy:
+   src: "../files/caddy/{{ item }}"
+   dest: ~/home/ubuntu/dprom/caddy/
+   mode: 0755
+  with_items:
+   - Caddyfile
+
+- name: Copy related support/configuration files - grafana
+  copy:
+   src: "../files/grafana/{{ item }}"
+   dest: ~/home/ubuntu/dprom/grafana/
+   mode: 0755
+  with_items:
+   - setup.sh
+
+- name: Copy related support/configuration files - grafana-dashboards
+  copy:
+   src: "../files/grafana/dashboards/{{ item }}"
+   dest: ~/home/ubuntu/dprom/grafana/dashboards
+   mode: 0755
+  with_items:
+   - docker_containers.json
+   - docker_host.json 
+   - monitor_services.json
+   - nginx_container.json
+
+- name: Copy related support/configuration files - grafana-datasources
+  copy:
+   src: "../files/grafana/datasources/{{ item }}"
+   dest: ~/home/ubuntu/dprom/grafana/datasources/
+   mode: 0755
+  with_items:
+   - Prometheus.json
+
+- name: Copy related support/configuration files - prometheus
+  copy:
+   src: "../files/prometheus/{{ item }}"
+   dest: ~/home/ubuntu/dprom/prometheus/
+   mode: 0755
+  with_items:
+   - alert.rules
+   - prometheus.yml
+
 - name: Tear Down existing services
   become: yes
   docker_compose: 
